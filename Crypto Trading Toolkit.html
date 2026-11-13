@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Crypto Trading Toolkit</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231e222d'/%3E%3Crect x='14' y='26' width='9' height='22' rx='2' fill='%230ecb81'/%3E%3Crect x='27.5' y='14' width='9' height='24' rx='2' fill='%23f0b90b'/%3E%3Crect x='41' y='20' width='9' height='26' rx='2' fill='%23f6465d'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            background: #1e222d;
+            margin: 0;
+            padding: 36px 18px;
+            color: #d1d4dc;
+        }
+
+        .calculator-card {
+            background: #2a2e39;
+            border-radius: 12px;
+            padding: 28px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            border: 1px solid #363a45;
+        }
+
+        h2 {
+            text-align: center;
+            color: #f0b90b;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #b2b5be;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #434651;
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: #1e222d;
+            color: #ffffff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #f0b90b;
+        }
+
+        .calc-action {
+            width: 100%;
+            background-color: #f0b90b;
+            color: #1e222d;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.2s;
+        }
+
+        .calc-action:hover {
+            background-color: #e0ab08;
+        }
+
+        .results-container {
+            display: none;
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            background-color: #1e222d;
+            border: 1px solid #363a45;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 15px;
+            color: #b2b5be;
+        }
+
+        .result-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-row span.value {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #363a45;
+            margin: 12px 0;
+        }
+
+        .text-green {
+            color: #0ecb81 !important;
+        }
+
+        .text-red {
+            color: #f6465d !important;
+        }
+
+        .shell {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 480px;
+            column-gap: 40px;
+            align-items: start;
+        }
+
+        .shell > nav,
+        .shell > section {
+            grid-column: 1;
+        }
+
+        .shell > header {
+            grid-column: 2;
+            grid-row: 1 / span 6;
+            align-self: center;
+            text-align: center;
+            margin-bottom: 0;
+            background: #2a2e39;
+            border: 1px solid #363a45;
+            border-radius: 12px;
+            padding: 36px 28px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .shell > header h1 {
+            white-space: nowrap;
+            font-size: 26px;
+        }
+
+        .shell .calculator-card {
+            max-width: none;
+        }
+
+        .eyebrow {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #f0b90b;
+            margin: 0 0 10px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            color: #fff;
+            margin: 0 0 10px;
+        }
+
+        header p {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #b2b5be;
+            margin: 0;
+        }
+
+        header {
+            margin-bottom: 24px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 6px;
+            padding: 6px;
+            background: #171b24;
+            border: 1px solid #363a45;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tabs button {
+            flex: 1;
+            padding: 14px 8px;
+            border: 0;
+            border-radius: 6px;
+            background: transparent;
+            color: #b2b5be;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .tabs button[aria-selected="true"] {
+            background: #f0b90b;
+            color: #1e222d;
+        }
+
+        .tabs button:hover {
+            color: #fff;
+        }
+
+        .tabs button[aria-selected="true"]:hover {
+            color: #1e222d;
+        }
+
+        button:focus-visible {
+            outline: 2px solid #f0b90b;
+            outline-offset: 3px;
+        }
+
+        .calculator-card {
+            max-width: none;
+        }
+
+        .calculator-card .calc-action {
+            display: block;
+            width: 100%;
+            background: #f0b90b;
+            color: #1e222d;
+            border: 0;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.2s;
+        }
+
+        .calculator-card .calc-action:hover {
+            background: #e0ab08;
+        }
+
+        .calculator-card h2 {
+            font-size: 22px;
+            text-align: left;
+        }
+
+        .result-row {
+            gap: 14px;
+            line-height: 1.5;
+        }
+
+        .result-row .value {
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .calculator input {
+            margin-bottom: 14px;
+        }
+
+        .calc-action {
+            width: 100%;
+            background: #f0b90b;
+            color: #1e222d;
+            border: 0;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .result {
+            display: none;
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            background: #1e222d;
+            border: 1px solid #363a45;
+        }
+
+        footer {
+            margin: 20px 0 0;
+            text-align: center;
+            color: #858b9a;
+            font-size: 12px;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        @media (min-width: 861px) {
+
+            #panel-futures .calculator-card,
+            #panel-spot .calculator-card {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                column-gap: 16px;
+                row-gap: 12px;
+                padding: 22px 28px;
+            }
+
+            #panel-futures .calculator-card > h2,
+            #panel-spot .calculator-card > h2,
+            #panel-futures .calc-action,
+            #panel-spot .calc-action,
+            #panel-futures .results-container,
+            #panel-spot .results-container,
+            #panel-futures .form-group:first-of-type {
+                grid-column: 1 / -1;
+            }
+
+            #panel-futures .calculator-card > h2,
+            #panel-spot .calculator-card > h2 {
+                margin-bottom: 4px;
+            }
+
+            #panel-futures .form-group,
+            #panel-spot .form-group {
+                margin-bottom: 0;
+            }
+
+            #panel-futures .calc-action,
+            #panel-spot .calc-action {
+                margin-top: 4px;
+            }
+
+            #panel-futures .results-container,
+            #panel-spot .results-container {
+                margin-top: 4px;
+            }
+        }
+
+        @media (max-width: 860px) {
+            .shell {
+                display: block;
+                max-width: 740px;
+            }
+
+            .shell > header {
+                margin-bottom: 24px;
+            }
+
+            .shell > header h1 {
+                white-space: normal;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 24px 12px;
+            }
+
+            .calculator-card {
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 24px;
+            }
+
+            .tabs button {
+                font-size: 15px;
+                padding: 12px 4px;
+            }
+
+            .result-row {
+                font-size: 14px;
+            }
+        }
+    
+        /* ---------- Transitions & animations ---------- */
+        .tabs button {
+            transition: background-color 0.25s ease, color 0.25s ease,
+                transform 0.2s ease, box-shadow 0.25s ease;
+        }
+
+        .tabs button:not([aria-selected="true"]):hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .tabs button[aria-selected="true"] {
+            box-shadow: 0 4px 14px rgba(240, 185, 11, 0.25);
+        }
+
+        .tabs button:active {
+            transform: scale(0.97);
+        }
+
+        input[type="number"],
+        select {
+            transition: border-color 0.25s ease, box-shadow 0.25s ease,
+                background-color 0.25s ease;
+        }
+
+        input[type="number"]:hover,
+        select:hover {
+            border-color: #5a5e6b;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.18);
+        }
+
+        .calculator-card,
+        .calc-action {
+            transition: background-color 0.25s ease, transform 0.2s ease,
+                box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .calculator-card:hover {
+            border-color: #434651;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .calc-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(240, 185, 11, 0.25);
+        }
+
+        .calc-action:active {
+            transform: translateY(0) scale(0.99);
+        }
+
+        .result-row .value {
+            transition: color 0.25s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        header {
+            animation: fadeIn 0.6s ease both;
+        }
+
+        .tabs {
+            animation: fadeUp 0.5s ease 0.1s both;
+        }
+
+        section[role="tabpanel"] {
+            animation: fadeUp 0.45s ease both;
+        }
+
+        .results-container,
+        .result {
+            animation: fadeUp 0.4s ease both;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="shell">
+        <header>
+            <p class="eyebrow">CRYPTO TRADING TOOLKIT</p>
+            <h1>Crypto 3 in 1 Toolkit</h1>
+            <p>Calculate futures averages, spot purchases, and trade risk.</p>
+        </header>
+        <nav class="tabs" role="tablist" aria-label="Calculators">
+            <button id="tab-futures" role="tab" type="button" aria-controls="panel-futures" aria-selected="true"
+                tabindex="0" data-tool="futures">
+                Futures Average</button><button id="tab-spot" role="tab" type="button" aria-controls="panel-spot"
+                aria-selected="false" tabindex="-1" data-tool="spot">
+                Spot Average</button><button id="tab-risk" role="tab" type="button" aria-controls="panel-risk"
+                aria-selected="false" tabindex="-1" data-tool="risk">
+                Risk Calculator
+            </button>
+        </nav>
+        <section id="panel-futures" role="tabpanel" aria-labelledby="tab-futures">
+            <div class="calculator-card">
+                <h2>Crypto Futures Average Calculator</h2>
+
+                <div class="form-group">
+                    <label for="futures-calcMode">Calculation Mode:</label>
+                    <select id="futures-calcMode" onchange="futures_toggleMode()">
+                        <option value="target">
+                            Target Average Price (Find Size Needed)
+                        </option>
+                        <option value="margin">
+                            Add New Margin (Find New Average & PnL)
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="futures-tradeType">Trade Type:</label>
+                    <select id="futures-tradeType" onchange="futures_calculate()">
+                        <option value="Long">Long</option>
+                        <option value="Short">Short</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="futures-leverage">Leverage (x):</label>
+                    <input type="number" id="futures-leverage" oninput="futures_calculate()" value="20" step="any" />
+                </div>
+
+                <div class="form-group">
+                    <label for="futures-entryPrice">Entry Price (USDT):</label>
+                    <input type="number" id="futures-entryPrice" oninput="futures_calculate()" value="1.4238" step="any" />
+                </div>
+
+                <div class="form-group">
+                    <label for="futures-currentSize">Current Position Size (USDT):</label>
+                    <input type="number" id="futures-currentSize" oninput="futures_calculate()" value="517.5166" step="any" />
+                </div>
+
+                <div class="form-group">
+                    <label for="futures-marketPrice">Market / New Purchase Price (USDT):</label>
+                    <input type="number" id="futures-marketPrice" oninput="futures_calculate()" value="1.366" step="any" />
+                </div>
+
+                <!-- Mode-Specific Input Field -->
+                <div class="form-group" id="futures-groupTarget">
+                    <label for="futures-targetPrice">Target Average Price (USDT):</label>
+                    <input type="number" id="futures-targetPrice" oninput="futures_calculate()" value="1.367" step="any" />
+                </div>
+
+                <div class="form-group" id="futures-groupMargin" style="display: none">
+                    <label for="futures-newMargin">New Margin to Add (USDT):</label>
+                    <input type="number" id="futures-newMargin" oninput="futures_calculate()" value="6" step="any" />
+                </div>
+
+                <button id="futures-calcBtn" class="calc-action" onclick="futures_calculate()">
+                    Calculate
+                </button>
+
+                <div class="results-container" aria-live="polite" id="futures-results">
+                    <!-- Results populated dynamically -->
+                </div>
+            </div>
+        </section>
+        <section id="panel-spot" role="tabpanel" aria-labelledby="tab-spot" hidden>
+            <div class="calculator-card">
+                <h2>Crypto Spot Average Calculator</h2>
+
+                <div class="form-group">
+                    <label for="spot-price1">First Purchase Price (USDT):</label>
+                    <input type="number" id="spot-price1" value="50" step="any" oninput="spot_calculateAverage()" />
+                </div>
+
+                <div class="form-group">
+                    <label for="spot-qty1">First Purchase Quantity:</label>
+                    <input type="number" id="spot-qty1" value="100" step="any" oninput="spot_calculateAverage()" />
+                </div>
+
+                <div class="form-group">
+                    <label for="spot-price2">Second / New Price (USDT):</label>
+                    <input type="number" id="spot-price2" value="45" step="any" oninput="spot_calculateAverage()" />
+                </div>
+
+                <div class="form-group">
+                    <label for="spot-qty2">New Quantity to Buy:</label>
+                    <input type="number" id="spot-qty2" value="200" step="any" oninput="spot_calculateAverage()" />
+                </div>
+
+                <button id="spot-calcBtn" class="calc-action" onclick="spot_calculateAverage()">
+                    Calculate
+                </button>
+
+                <div class="results-container" aria-live="polite" id="spot-results">
+                    <div class="result-row">
+                        <span>First Investment:</span>
+                        <span class="value" id="spot-resFirstInv">$0.00</span>
+                    </div>
+                    <div class="result-row">
+                        <span>New Investment:</span>
+                        <span class="value" id="spot-resNewInv">$0.00</span>
+                    </div>
+                    <div class="result-row">
+                        <span>Total Quantity:</span>
+                        <span class="value" id="spot-resTotalQty">0</span>
+                    </div>
+                    <div class="result-row">
+                        <span>New Average Price:</span>
+                        <span class="value text-green" id="spot-resAvgPrice">$0.00</span>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="result-row">
+                        <span>Loss based on First Price (%):</span>
+                        <span class="value" id="spot-resFirstLoss">0.00%</span>
+                    </div>
+                    <div class="result-row">
+                        <span>Loss after Averaging (%):</span>
+                        <span class="value" id="spot-resAvgLoss">0.00%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="panel-risk" role="tabpanel" aria-labelledby="tab-risk" hidden>
+            <div class="calculator-card calculator">
+                <h2>Risk Calculator</h2>
+
+                <label for="risk-capital">Capital (USDT):</label>
+                <input type="number" step="any" min="0" id="risk-capital" placeholder="Enter Capital" required />
+
+                <label for="risk-otrap">O.T.R.A.P (%):</label>
+                <input type="number" step="any" min="0" id="risk-otrap" placeholder="Enter O.T.R.A.P" required />
+
+                <label for="risk-stopLoss">Stop Loss (%):</label>
+                <input type="number" step="any" min="0" id="risk-stopLoss" placeholder="Enter Stop Loss" required />
+
+                <label for="risk-margin">Margin (USDT):</label>
+                <input type="number" step="any" min="0" id="risk-margin" placeholder="Enter Margin" required />
+
+                <label for="risk-leverage">Leverage (x):</label>
+                <input type="number" step="any" min="0" id="risk-leverage" placeholder="Enter Leverage" required />
+
+                <button class="calc-action" onclick="risk_calculateRisk()">
+                    Calculate Risk
+                </button>
+
+                <div class="result" id="risk-result" aria-live="polite"></div>
+            </div>
+        </section>
+    </main>
+    <script>
+        const $ = (id) => document.getElementById(id);
+
+        function futures_toggleMode() {
+            const target = $("futures-calcMode").value === "target";
+            $("futures-groupTarget").style.display = target ? "block" : "none";
+            $("futures-groupMargin").style.display = target ? "none" : "block";
+            futures_calculate();
+        }
+
+        function futures_calculate() {
+            const mode = $("futures-calcMode").value;
+            const isShort = $("futures-tradeType").value === "Short";
+            const leverage = parseFloat($("futures-leverage").value) || 0;
+            const entryPrice = parseFloat($("futures-entryPrice").value) || 0;
+            const currentSize = parseFloat($("futures-currentSize").value) || 0;
+            const marketPrice = parseFloat($("futures-marketPrice").value) || 0;
+            const resultsDiv = $("futures-results");
+
+            if (leverage <= 0 || entryPrice <= 0 || currentSize <= 0 || marketPrice <= 0) {
+                resultsDiv.style.display = "none";
+                return;
+            }
+
+            // Liquidation (simplified: ignores maintenance margin and fees)
+            const liqFactor = isShort ? 1 + 1 / leverage : 1 - 1 / leverage;
+
+            if (mode === "target") {
+                const targetPrice = parseFloat($("futures-targetPrice").value) || 0;
+                if (targetPrice <= 0) {
+                    resultsDiv.style.display = "none";
+                    return;
+                }
+
+                // A target average is only reachable strictly between entry and market price
+                const lo = Math.min(entryPrice, marketPrice);
+                const hi = Math.max(entryPrice, marketPrice);
+                if (!(targetPrice > lo && targetPrice < hi)) {
+                    resultsDiv.innerHTML = `
+                        <div class="result-row">
+                            <span class="text-red">Target price must lie between the market price (${marketPrice}) and the entry price (${entryPrice}).</span>
+                        </div>`;
+                    resultsDiv.style.display = "block";
+                    return;
+                }
+
+                // Size is in USDT (notional), so convert to quantity: qty = size / price
+                // (S0 + S1) / (S0/E + S1/M) = T  =>  S1 = S0 (T - E) M / (E (M - T))
+                const sizeNeeded =
+                    (currentSize * (targetPrice - entryPrice) * marketPrice) /
+                    (entryPrice * (marketPrice - targetPrice));
+                const marginRequired = sizeNeeded / leverage;
+                const totalSize = currentSize + sizeNeeded;
+                const totalQty = currentSize / entryPrice + sizeNeeded / marketPrice;
+                const newAvgPrice = totalSize / totalQty;
+                const newLiquidation = newAvgPrice * liqFactor;
+
+                resultsDiv.innerHTML = `
+                    <div class="result-row">
+                        <span>Size Needed (USDT):</span>
+                        <span class="value">$${sizeNeeded.toFixed(2)}</span>
+                    </div>
+                    <div class="result-row">
+                        <span>Margin Required (${leverage}x):</span>
+                        <span class="value text-green">$${marginRequired.toFixed(2)}</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="result-row">
+                        <span>New Average Entry Price:</span>
+                        <span class="value">$${newAvgPrice.toFixed(4)}</span>
+                    </div>
+                    <div class="result-row">
+                        <span>New Position Size:</span>
+                        <span class="value">$${totalSize.toFixed(2)}</span>
+                    </div>
+                    <div class="result-row">
+                        <span>New Liquidation Price:</span>
+                        <span class="value text-red">$${newLiquidation.toFixed(4)}</span>
+                    </div>
+                `;
+            } else {
+                const newMargin = parseFloat($("futures-newMargin").value) || 0;
+                if (newMargin <= 0) {
+                    resultsDiv.style.display = "none";
+                    return;
+                }
+
+                const addedSize = newMargin * leverage;
+                const totalSize = currentSize + addedSize;
+                const totalQty = currentSize / entryPrice + addedSize / marketPrice;
+                const newAvgPrice = totalSize / totalQty;
+
+                // Unrealized PnL of the current position at the market price
+                const qty = currentSize / entryPrice;
+                const pnl = (isShort ? entryPrice - marketPrice : marketPrice - entryPrice) * qty;
+
+                const newLiquidation = newAvgPrice * liqFactor;
+                const pnlClass = pnl >= 0 ? "text-green" : "text-red";
+
+                resultsDiv.innerHTML = `
+                    <div class="result-row">
+                        <span>New Average Entry Price:</span>
+                        <span class="value">$${newAvgPrice.toFixed(4)}</span>
+                    </div>
+                    <div class="result-row">
+                        <span>Unrealized PNL (current position):</span>
+                        <span class="value ${pnlClass}">$${pnl.toFixed(2)}</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="result-row">
+                        <span>Size Added (USDT):</span>
+                        <span class="value">$${addedSize.toFixed(2)}</span>
+                    </div>
+                    <div class="result-row">
+                        <span>New Position Size:</span>
+                        <span class="value">$${totalSize.toFixed(2)}</span>
+                    </div>
+                    <div class="result-row">
+                        <span>New Liquidation Price:</span>
+                        <span class="value text-red">$${newLiquidation.toFixed(4)}</span>
+                    </div>
+                `;
+            }
+
+            resultsDiv.style.display = "block";
+        }
+
+        // Run initial calculation on page load
+        futures_calculate();
+
+        function spot_calculateAverage() {
+            const price1 = parseFloat($("spot-price1").value) || 0;
+            const qty1 = parseFloat($("spot-qty1").value) || 0;
+            const price2 = parseFloat($("spot-price2").value) || 0;
+            const qty2 = parseFloat($("spot-qty2").value) || 0;
+
+            if (price1 <= 0 || qty1 <= 0 || price2 <= 0 || qty2 <= 0) {
+                $("spot-results").style.display = "none";
+                return;
+            }
+
+            const money = (n) =>
+                `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            const firstInvestment = price1 * qty1;
+            const newInvestment = price2 * qty2;
+            const totalQuantity = qty1 + qty2;
+            const averagePrice = (firstInvestment + newInvestment) / totalQuantity;
+
+            // Positive = price is below that reference (loss); negative = above (gain)
+            const lossFirstPrice = ((price1 - price2) / price1) * 100;
+            const lossAvgPrice = ((averagePrice - price2) / averagePrice) * 100;
+
+            $("spot-resFirstInv").textContent = money(firstInvestment);
+            $("spot-resNewInv").textContent = money(newInvestment);
+            $("spot-resTotalQty").textContent = totalQuantity.toLocaleString("en-US", { maximumFractionDigits: 8 });
+            $("spot-resAvgPrice").textContent = `$${averagePrice.toFixed(4)}`;
+
+            const first = $("spot-resFirstLoss");
+            const avg = $("spot-resAvgLoss");
+            first.textContent = `${lossFirstPrice.toFixed(2)}%`;
+            avg.textContent = `${lossAvgPrice.toFixed(2)}%`;
+            first.className = "value " + (lossFirstPrice > 0 ? "text-red" : "text-green");
+            avg.className = "value " + (lossAvgPrice > 0 ? "text-red" : "text-green");
+
+            $("spot-results").style.display = "block";
+        }
+
+        // Auto calculate initial default values
+        spot_calculateAverage();
+
+        function risk_calculateRisk() {
+            const capital = parseFloat($("risk-capital").value);
+            const otrap = parseFloat($("risk-otrap").value);
+            const stopLoss = parseFloat($("risk-stopLoss").value);
+            const margin = parseFloat($("risk-margin").value);
+            const leverage = parseFloat($("risk-leverage").value);
+            const out = $("risk-result");
+
+            const values = [capital, otrap, stopLoss, margin, leverage];
+            if (!values.every((v) => Number.isFinite(v) && v > 0)) {
+                out.innerHTML = `<div class="result-row"><span class="text-red">Please fill every field with a number greater than 0.</span></div>`;
+                out.style.display = "block";
+                return;
+            }
+
+            // Max loss you allow yourself per trade
+            const oneTradeRiskAmount = (capital * otrap) / 100;
+            // Loss if the stop loss (%) is hit on the leveraged position
+            const riskAmount = (stopLoss * margin * leverage) / 100;
+            // Risk as % of capital
+            const percentage = (riskAmount * 100) / capital;
+            const withinLimit = riskAmount <= oneTradeRiskAmount;
+
+            out.innerHTML = `
+                <div class="result-row"><span>One Trade Risk Amount:</span><span class="value">$${oneTradeRiskAmount.toFixed(2)}</span></div>
+                <div class="result-row"><span>Risk Amount:</span><span class="value ${withinLimit ? "text-green" : "text-red"}">$${riskAmount.toFixed(2)}</span></div>
+                <div class="divider"></div>
+                <div class="result-row"><span>Percentage:</span><span class="value ${withinLimit ? "text-green" : "text-red"}">${percentage.toFixed(2)}%</span></div>
+            `;
+            out.style.display = "block";
+        }
+
+        const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+        function selectTool(tab) {
+            tabs.forEach((item) => {
+                const active = item === tab;
+                item.setAttribute("aria-selected", String(active));
+                item.tabIndex = active ? 0 : -1;
+                $(item.getAttribute("aria-controls")).hidden = !active;
+            });
+        }
+        tabs.forEach((tab, index) => {
+            tab.addEventListener("click", () => selectTool(tab));
+            tab.addEventListener("keydown", (event) => {
+                let next;
+                if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
+                else if (event.key === "ArrowLeft") next = (index + tabs.length - 1) % tabs.length;
+                else if (event.key === "Home") next = 0;
+                else if (event.key === "End") next = tabs.length - 1;
+                else return;
+                event.preventDefault();
+                selectTool(tabs[next]);
+                tabs[next].focus();
+            });
+        });
+    </script>
+</body>
+
+</html>
